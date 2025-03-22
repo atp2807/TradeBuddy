@@ -1,4 +1,4 @@
-package com.EEO.tradebuddy.ui.theme
+package com.eeo.tradebuddy.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

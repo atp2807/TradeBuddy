@@ -1,4 +1,4 @@
-package com.EEO.tradebuddy
+package com.eeo.tradebuddy
 
 import org.junit.Test
 

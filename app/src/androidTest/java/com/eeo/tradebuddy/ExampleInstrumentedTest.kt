@@ -1,4 +1,4 @@
-package com.EEO.tradebuddy
+package com.eeo.tradebuddy
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.EEO.tradebuddy"
+    namespace = "com.eeo.tradebuddy"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.EEO.tradebuddy"
+        applicationId = "com.eeo.tradebuddy"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -19,12 +19,16 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/\"")
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "BASE_URL", "\"http://44.202.142.192:8000/\"")
         }
     }
     compileOptions {
@@ -36,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -59,4 +64,5 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
 }

@@ -1,4 +1,4 @@
-package com.EEO.tradebuddy.model
+package com.eeo.tradebuddy.model
 
 data class TradeItem(
     val user_id: Int,
