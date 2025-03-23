@@ -3,6 +3,7 @@ package com.eeo.tradebuddy.model
 data class TradeItem(
     val user_id: Int,
     val stock_symbol: String,
+    val stock_name: String,
     val trade_time: String,
     val trade_price: Double,
     val trade_quantity: Int,

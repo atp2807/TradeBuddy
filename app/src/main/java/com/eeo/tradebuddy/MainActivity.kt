@@ -8,23 +8,28 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.AlertDialog
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.runtime.remember
+import com.eeo.tradebuddy.model.TradeItem
+import com.eeo.tradebuddy.model.TradeBulkRequest
+import com.eeo.tradebuddy.network.RetrofitInstance
 import com.eeo.tradebuddy.ui.theme.AppSizes
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import com.eeo.tradebuddy.parser.kr.parseEugeneMessage
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {  // ✅ setContent 중복 제거
+        setContent {
             MainScreen()
         }
     }
@@ -32,16 +37,17 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen() {
-    var showDialog = remember{ mutableStateOf(false)}
+    var showDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background) // ✅ 테마 색상 적용
-            .padding(AppSizes.PaddingMedium), // ✅ 상수 적용
+            .background(MaterialTheme.colorScheme.background)
+            .padding(AppSizes.PaddingMedium),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // 앱 타이틀
         Text(
             text = "TradeBuddy",
             style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
@@ -49,29 +55,68 @@ fun MainScreen() {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // 버튼 리스트
+        // 🔵 분석 버튼 클릭 → 하드코딩된 메시지 분석 및 업로드
         ButtonCard("📊 분석 시작", Color(0xFF6366F1)) {
-            showDialog.value = true  // ✅ 버튼 클릭 시 Dialog 표시
-            println("showDialog 값 변경됨: ${showDialog.value}")
+            val message = "해외주식 체결 안내 ㆍ계좌 : ***320 ㆍ종목 : T-REX 2X I [MSTZ] ㆍ구분 : 매수체결 [#2794] ㆍ가격 : 15.31USD ㆍ수량 : 288주"
+            val parsedRequest = parseEugeneMessage(message)
+
+            coroutineScope.launch {
+                try {
+                    val response = RetrofitInstance.api.uploadTrades(parsedRequest)
+                    if (response.isSuccessful) {
+                        println("✅ 업로드 성공: ${response.body()?.message}")
+                    } else {
+                        println("❌ 업로드 실패: ${response.errorBody()?.string()}")
+                    }
+                } catch (e: Exception) {
+                    println("🚨 네트워크 오류: ${e.localizedMessage}")
+                }
+            }
         }
+
         Spacer(modifier = Modifier.height(12.dp))
-        ButtonCard("🔍 내 분석 기록 보기", Color(0xFF4F46E5)) { /* 분석 기록 화면 이동 */ }
+        ButtonCard("🔍 내 분석 기록 보기", Color(0xFF4F46E5)) { /* TODO */ }
         Spacer(modifier = Modifier.height(12.dp))
-        ButtonCard("⭐ 관심 주식 등록", Color(0xFF4338CA)) { /* 관심 주식 관리 화면 이동 */ }
+        ButtonCard("⭐ 관심 주식 등록", Color(0xFF4338CA)) { /* TODO */ }
     }
-    // 거래 데이터 입력 다이얼로그
-    if (showDialog.value) {
+
+    if (showDialog) {
         TradeDataInputDialog(
-            onDismiss = { showDialog.value = false },
+            onDismiss = { showDialog = false },
             onConfirm = { stock, time, price ->
-                // TODO: 데이터 저장 로직 추가
-                showDialog.value = false
+                val tradeItem = TradeItem(
+                    user_id = 1,
+                    stock_symbol = stock,
+                    stock_name = "임시 종목명",
+                    trade_time = "2025-03-22T$time:00",
+                    trade_price = price.toDoubleOrNull() ?: 0.0,
+                    trade_quantity = 10,
+                    trade_type = "BUY",
+                    message_source = "app",
+                    trade_status = "CONFIRMED"
+                )
+
+                val request = TradeBulkRequest(trades = listOf(tradeItem))
+
+                coroutineScope.launch {
+                    try {
+                        val response = RetrofitInstance.api.uploadTrades(request)
+                        if (response.isSuccessful) {
+                            println("✅ 업로드 성공: ${response.body()?.message}")
+                        } else {
+                            println("❌ 실패: ${response.errorBody()?.string()}")
+                        }
+                    } catch (e: Exception) {
+                        println("🚨 에러 발생: ${e.localizedMessage}")
+                    }
+                }
+
+                showDialog = false
             }
         )
     }
 }
 
-// 카드형 버튼 스타일
 @Composable
 fun ButtonCard(text: String, backgroundColor: Color, onClick: () -> Unit) {
     Card(
@@ -101,9 +146,9 @@ fun TradeDataInputDialog(
     onDismiss: () -> Unit,
     onConfirm: (String, String, String) -> Unit
 ) {
-    var stockName = remember { mutableStateOf("") }
-    var tradeTime = remember { mutableStateOf("") }
-    var tradePrice = remember { mutableStateOf("") }
+    var stockName by remember { mutableStateOf("") }
+    var tradeTime by remember { mutableStateOf("") }
+    var tradePrice by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = { onDismiss() },
@@ -111,27 +156,29 @@ fun TradeDataInputDialog(
         text = {
             Column {
                 OutlinedTextField(
-                    value = stockName.value,
-                    onValueChange = { stockName.value = it },
+                    value = stockName,
+                    onValueChange = { stockName = it },
                     label = { Text("종목명") }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = tradeTime.value,
-                    onValueChange = { tradeTime.value = it },
-                    label = { Text("매매 시간 (예: 10:30 AM)") }
+                    value = tradeTime,
+                    onValueChange = { tradeTime = it },
+                    label = { Text("매매 시간 (예: 10:30)") }
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 OutlinedTextField(
-                    value = tradePrice.value,
-                    onValueChange = { tradePrice.value = it },
+                    value = tradePrice,
+                    onValueChange = { tradePrice = it },
                     label = { Text("매매 가격") },
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
                 )
             }
         },
         confirmButton = {
-            Button(onClick = { onConfirm(stockName.value, tradeTime.value, tradePrice.value) }) {
+            Button(onClick = {
+                onConfirm(stockName, tradeTime, tradePrice)
+            }) {
                 Text("확인")
             }
         },
