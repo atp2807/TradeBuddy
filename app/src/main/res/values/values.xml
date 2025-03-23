@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 🏠 Page 1: Home Screen -->
+    <string name="btn_analyze">📩 Analyze with AI</string>
+    <string name="btn_view_report">📄 View My Report</string>
+    <string name="btn_premium_menu">💎 Premium Menu</string>
+
+    <!-- 📝 Page 2: Filtering & Report Generation -->
+    <string name="title_select_brokers">📊 Please select the brokers to analyze</string>
+    <string name="btn_generate_report">🧠 Generate Report</string>
+    <string name="loading_filtering">🔍 Analyzing messages…</string>
+    <string name="no_broker_detected">⚠️ No broker messages detected</string>
+
+    <!-- ✅ Completion & Report Response -->
+    <string name="report_success">✅ Your report has been generated!</string>
+    <string name="report_empty">❌ No report data available.</string>
+
+    <!-- Miscellaneous Common Messages -->
+    <string name="no_sms_found">No messages available for analysis.</string>
+    <string name="read_sms_button">📩 Load SMS</string>
+    <string name="sms_permission_denied">⚠️ SMS permission is required.</string>
+    <string name="network_error">🚨 Network error: Unable to connect to the server.</string>
+    <string name="confirm_exit">Do you want to exit the app?</string>
+</resources>

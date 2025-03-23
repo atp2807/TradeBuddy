@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.lifecycleScope
-import com.eeo.tradebuddy.model.TradeBulkRequest
 import com.eeo.tradebuddy.network.RetrofitInstance
 import com.eeo.tradebuddy.ui.theme.AppSizes
 import kotlinx.coroutines.launch
@@ -25,12 +24,22 @@ import com.eeo.tradebuddy.parser.kr.parseEugeneMessage
 import com.eeo.tradebuddy.model.FieldNameCache
 import com.eeo.tradebuddy.model.toDynamicJson
 import com.eeo.tradebuddy.model.TradeItem
-import com.eeo.tradebuddy.model.UploadResult
-
+import android.widget.Toast
+import androidx.compose.ui.platform.LocalContext
+import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
+import androidx.compose.ui.res.stringResource
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import android.util.Log
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestSmsPermission(this, this)
 
         lifecycleScope.launch {
             fetchFieldNamesFromServer()
@@ -45,6 +54,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
     var showDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current  // ✅ 여기서 선언
 
     Column(
         modifier = Modifier
@@ -65,6 +75,7 @@ fun MainScreen() {
             val fieldNames = FieldNameCache.fieldNames
             if (fieldNames.isNullOrEmpty()) {
                 println("⚠️ 필드명이 아직 로딩되지 않았어요. 잠시만 기다려주세요.")
+                println("🌐 현재 BASE_URL: ${BuildConfig.BASE_URL}")
                 return@ButtonCard
             }
             val message = "해외주식 체결 안내 ㆍ계좌 : ***320 ㆍ종목 : T-REX 2X I [MSTZ] ㆍ구분 : 매수체결 [#2794] ㆍ가격 : 15.31USD ㆍ수량 : 288주"
@@ -86,7 +97,17 @@ fun MainScreen() {
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-        ButtonCard("🔍 내 분석 기록 보기", Color(0xFF4F46E5)) { /* TODO */ }
+        ButtonCard(stringResource(R.string.read_sms_button), Color(0xFF0EA5E9)) {
+            val messages = getSmsMessages(context)
+            if (messages.isEmpty()) {
+                Toast.makeText(context, context.getString(R.string.no_sms_found), Toast.LENGTH_SHORT).show()
+                println("✅메시지 없음")
+            } else {
+                println("🌐 현재 BASE_URL: ${BuildConfig.BASE_URL}")
+                println("✅ 읽은 메시지 수: ${messages.size}")
+                println("📩 첫 메시지:\n${messages.first()}")
+            }
+        }
         Spacer(modifier = Modifier.height(12.dp))
         ButtonCard("⭐ 관심 주식 등록", Color(0xFF4338CA)) { /* TODO */ }
     }
@@ -215,4 +236,28 @@ suspend fun fetchFieldNamesFromServer() {
     } catch (e: Exception) {
         println("🚨 네트워크 오류: ${e.localizedMessage}")
     }
+}
+private fun requestSmsPermission(context: Context, activity: Activity) {
+    val permission = Manifest.permission.READ_SMS
+    if (ContextCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+        ActivityCompat.requestPermissions(activity, arrayOf(permission), 1001)
+    }
+}
+fun getSmsMessages(context: Context): List<String> {
+    val messages = mutableListOf<String>()
+    val cursor = context.contentResolver.query(
+        Uri.parse("content://sms/inbox"),
+        arrayOf("address", "body", "date"),
+        null,
+        null,
+        "date DESC"
+    )
+
+    cursor?.use {
+        while (it.moveToNext()) {
+            val body = it.getString(it.getColumnIndexOrThrow("body"))
+            messages.add(body)
+        }
+    }
+    return messages
 }

@@ -17,18 +17,27 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
+        create("release") {
+            storeFile = file("/Users/daviy/Developer/source_trade/tradeBdKey1")
+            storePassword = "duswk23!"
+            keyAlias = "key1"
+            keyPassword = "duswk23!"
+        }
+    }
 
     buildTypes {
         debug {
             buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/\"")
         }
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "BASE_URL", "\"http://44.202.142.192:8000/\"")
+            buildConfigField("String", "BASE_URL", "\"https://mydeeptrack.com/\"")
         }
     }
     compileOptions {
