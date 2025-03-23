@@ -1,5 +1,6 @@
 package com.eeo.tradebuddy.model
 import kotlin.reflect.full.memberProperties
+import kotlin.reflect.KProperty1
 
 data class TradeItem(
     val user_id: Int,
@@ -18,9 +19,13 @@ data class TradeBulkRequest(
     val trades: List<TradeItem>
 )
 fun TradeItem.toDynamicJson(): Map<String, Any?> {
-    return this::class.memberProperties.associate { prop ->
-        val key = FieldNameCache.get(prop.name)
-        val value = prop.get(this)
-        key to value
-    }
+    val fields = FieldNameCache.fieldNames ?: error("❌ Field names are not loaded")
+    return this::class.memberProperties
+        .filterIsInstance<KProperty1<TradeItem, *>>()
+        .filter { fields.containsKey(it.name) }  // ✅ 캐시에 있는 필드만 필터링
+        .associate { prop ->
+            val key = fields[prop.name]!!         // ✅ 캐시에서 DB용 이름
+            val value = prop.get(this)            // ✅ 해당 필드의 실제 값
+            key to value
+        }
 }

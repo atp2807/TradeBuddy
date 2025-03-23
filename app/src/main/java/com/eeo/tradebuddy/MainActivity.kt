@@ -62,7 +62,8 @@ fun MainScreen() {
         )
 
         ButtonCard("📊 분석 시작", Color(0xFF6366F1)) {
-            if (FieldNameCache.fieldNames == null) {
+            val fieldNames = FieldNameCache.fieldNames
+            if (fieldNames.isNullOrEmpty()) {
                 println("⚠️ 필드명이 아직 로딩되지 않았어요. 잠시만 기다려주세요.")
                 return@ButtonCard
             }
@@ -94,7 +95,7 @@ fun MainScreen() {
         TradeDataInputDialog(
             onDismiss = { showDialog = false },
             onConfirm = { stock, time, price ->
-                val tradeItem: TradeItem = TradeItem(
+                val tradeItem = TradeItem(
                     user_id = 1,
                     stock_symbol = stock,
                     stock_name = "임시 종목명",
@@ -107,11 +108,11 @@ fun MainScreen() {
                     market_type = "KR"
                 )
 
-                val request = TradeBulkRequest(trades = listOf(tradeItem))
+                val dynamicRequest = mapOf("trades" to listOf(tradeItem.toDynamicJson()))
 
                 coroutineScope.launch {
                     try {
-                        val response = RetrofitInstance.api.uploadTrades(request)
+                        val response = RetrofitInstance.api.uploadTradesDynamic(dynamicRequest)
                         if (response.isSuccessful) {
                             println("✅ 업로드 성공: ${response.body()?.message}")
                         } else {
@@ -121,6 +122,7 @@ fun MainScreen() {
                         println("🚨 에러 발생: ${e.localizedMessage}")
                     }
                 }
+
 
                 showDialog = false
             }
