@@ -16,19 +16,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
-import com.eeo.tradebuddy.model.TradeItem
+import androidx.lifecycle.lifecycleScope
 import com.eeo.tradebuddy.model.TradeBulkRequest
 import com.eeo.tradebuddy.network.RetrofitInstance
 import com.eeo.tradebuddy.ui.theme.AppSizes
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import com.eeo.tradebuddy.parser.kr.parseEugeneMessage
+import com.eeo.tradebuddy.model.FieldNameCache
+import com.eeo.tradebuddy.model.toDynamicJson
+import com.eeo.tradebuddy.model.TradeItem
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch {
+            fetchFieldNamesFromServer()
+        }
         setContent {
             MainScreen()
         }
@@ -55,14 +59,14 @@ fun MainScreen() {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // 🔵 분석 버튼 클릭 → 하드코딩된 메시지 분석 및 업로드
         ButtonCard("📊 분석 시작", Color(0xFF6366F1)) {
             val message = "해외주식 체결 안내 ㆍ계좌 : ***320 ㆍ종목 : T-REX 2X I [MSTZ] ㆍ구분 : 매수체결 [#2794] ㆍ가격 : 15.31USD ㆍ수량 : 288주"
             val parsedRequest = parseEugeneMessage(message)
+            val dynamicRequest = mapOf("trades" to parsedRequest.trades.map { it.toDynamicJson() })
 
             coroutineScope.launch {
                 try {
-                    val response = RetrofitInstance.api.uploadTrades(parsedRequest)
+                    val response = RetrofitInstance.api.uploadTradesDynamic(dynamicRequest)
                     if (response.isSuccessful) {
                         println("✅ 업로드 성공: ${response.body()?.message}")
                     } else {
@@ -84,7 +88,7 @@ fun MainScreen() {
         TradeDataInputDialog(
             onDismiss = { showDialog = false },
             onConfirm = { stock, time, price ->
-                val tradeItem = TradeItem(
+                val tradeItem: TradeItem = TradeItem(
                     user_id = 1,
                     stock_symbol = stock,
                     stock_name = "임시 종목명",
@@ -93,7 +97,8 @@ fun MainScreen() {
                     trade_quantity = 10,
                     trade_type = "BUY",
                     message_source = "app",
-                    trade_status = "CONFIRMED"
+                    trade_status = "CONFIRMED",
+                    market_type = "KR"
                 )
 
                 val request = TradeBulkRequest(trades = listOf(tradeItem))
@@ -188,4 +193,18 @@ fun TradeDataInputDialog(
             }
         }
     )
+}
+
+suspend fun fetchFieldNamesFromServer() {
+    try {
+        val response = RetrofitInstance.api.getFieldNames()
+        if (response.isSuccessful) {
+            FieldNameCache.fieldNames = response.body()
+            println("✅ FieldNames 불러오기 성공: ${FieldNameCache.fieldNames}")
+        } else {
+            println("❌ FieldNames 응답 실패: ${response.errorBody()?.string()}")
+        }
+    } catch (e: Exception) {
+        println("🚨 네트워크 오류: ${e.localizedMessage}")
+    }
 }
