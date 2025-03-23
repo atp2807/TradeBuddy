@@ -25,6 +25,8 @@ import com.eeo.tradebuddy.parser.kr.parseEugeneMessage
 import com.eeo.tradebuddy.model.FieldNameCache
 import com.eeo.tradebuddy.model.toDynamicJson
 import com.eeo.tradebuddy.model.TradeItem
+import com.eeo.tradebuddy.model.UploadResult
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,6 +62,10 @@ fun MainScreen() {
         )
 
         ButtonCard("📊 분석 시작", Color(0xFF6366F1)) {
+            if (FieldNameCache.fieldNames == null) {
+                println("⚠️ 필드명이 아직 로딩되지 않았어요. 잠시만 기다려주세요.")
+                return@ButtonCard
+            }
             val message = "해외주식 체결 안내 ㆍ계좌 : ***320 ㆍ종목 : T-REX 2X I [MSTZ] ㆍ구분 : 매수체결 [#2794] ㆍ가격 : 15.31USD ㆍ수량 : 288주"
             val parsedRequest = parseEugeneMessage(message)
             val dynamicRequest = mapOf("trades" to parsedRequest.trades.map { it.toDynamicJson() })

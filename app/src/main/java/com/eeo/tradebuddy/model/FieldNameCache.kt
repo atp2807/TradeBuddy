@@ -3,6 +3,10 @@ package com.eeo.tradebuddy.model
 
 object FieldNameCache {
     var fieldNames: Map<String, String>? = null
+
+    fun get(key: String): String {
+        return fieldNames?.get(key) ?: key // 없으면 기본값
+    }
 }
 
 /*서버에서 받아올 거니까 하드코딩으로 우선 진행*/

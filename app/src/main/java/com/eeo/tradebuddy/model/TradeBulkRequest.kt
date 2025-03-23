@@ -1,20 +1,5 @@
 package com.eeo.tradebuddy.model
-
-fun TradeItem.toDynamicJson(): Map<String, Any> {
-    val fields = FieldNameCache.fieldNames ?: error("Field definitions are not loaded")
-    return mapOf(
-        fields["user_id"]!! to this.user_id,
-        fields["stock_symbol"]!! to this.stock_symbol,
-        fields["stock_name"]!! to this.stock_name,
-        fields["trade_time"]!! to this.trade_time,
-        fields["trade_price"]!! to this.trade_price,
-        fields["trade_quantity"]!! to this.trade_quantity,
-        fields["trade_type"]!! to this.trade_type,
-        fields["message_source"]!! to this.message_source,
-        fields["trade_status"]!! to this.trade_status,
-        fields["market_type"]!! to this.market_type
-    )
-}
+import kotlin.reflect.full.memberProperties
 
 data class TradeItem(
     val user_id: Int,
@@ -32,3 +17,10 @@ data class TradeItem(
 data class TradeBulkRequest(
     val trades: List<TradeItem>
 )
+fun TradeItem.toDynamicJson(): Map<String, Any?> {
+    return this::class.memberProperties.associate { prop ->
+        val key = FieldNameCache.get(prop.name)
+        val value = prop.get(this)
+        key to value
+    }
+}

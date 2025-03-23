@@ -15,9 +15,9 @@ interface TradeApiService {
     @POST("/trades/bulk")
     suspend fun uploadTradesDynamic(
         @Body trades: Map<String, @JvmSuppressWildcards Any>
-    ): Response<UploadResponse>
+    ): Response<UploadResult>
 
-    @GET("/meta/fieldnames")
+    @GET("/fieldnames")
     suspend fun getFieldNames(): Response<Map<String, String>>
 
 }
