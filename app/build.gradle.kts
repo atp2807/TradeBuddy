@@ -28,7 +28,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2:8000/\"")
+            buildConfigField("String", "BASE_URL", "\"http://mydeeptrack.com/\"")
         }
         release {
             signingConfig = signingConfigs.getByName("release")
@@ -76,4 +76,6 @@ dependencies {
     implementation(libs.okhttp)
 
     implementation(libs.kotlin.reflect)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.admob)
 }
