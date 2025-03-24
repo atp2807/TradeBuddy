@@ -19,19 +19,21 @@ import com.eeo.tradebuddy.R
 import com.eeo.tradebuddy.ui.components.NativeAdPopupUI
 import com.eeo.tradebuddy.ui.components.rememberLoadedNativeAd
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 @Composable
 fun HomeScreen(navController: NavController) {
     val isPremiumUser = false
-    var showAdPopup by remember { mutableStateOf(!isPremiumUser) } // 무료 사용자일 경우 true
+    var showAdPopup by rememberSaveable { mutableStateOf(!isPremiumUser) } // 무료 사용자일 경우 true
     val nativeAdState = rememberLoadedNativeAd() // 내부에서 테스트 ID 사용 중
 
+    Box(modifier = Modifier.fillMaxSize()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(AppSizes.PaddingMedium),
-        verticalArrangement = Arrangement.SpaceBetween,
+        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -71,6 +73,7 @@ fun HomeScreen(navController: NavController) {
                 navController.navigate(NavRoutes.PREMIUM)
             }
         }
+    }
         if (showAdPopup) {
             NativeAdPopupUI(
                 nativeAd = nativeAdState.value,

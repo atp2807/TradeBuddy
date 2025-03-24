@@ -78,4 +78,5 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.admob)
+    implementation(libs.accompanist.navigation.animation)
 }
