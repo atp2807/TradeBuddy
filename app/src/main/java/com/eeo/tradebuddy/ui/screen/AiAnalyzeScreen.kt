@@ -84,7 +84,7 @@ fun BrokerItemRow(
         )
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            Text(text = "${item.displayName} (${item.count}건)")
+            Text(text = "${item.displayName} (거래문자 ${item.count}건)")
             Text(
                 text = item.dateRange,
                 style = MaterialTheme.typography.bodySmall

@@ -14,10 +14,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
-import com.eeo.tradebuddy.features.message.parser.kr.eugen.parseEugeneMessage
 import com.eeo.tradebuddy.model.TradeBulkRequest
 import com.eeo.tradebuddy.network.RetrofitInstance
 import android.util.Log
+import com.eeo.tradebuddy.features.message.parser.kr.eugene.parseEugene
 
 class MessageAnalyzeViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -89,15 +89,23 @@ class MessageAnalyzeViewModel(application: Application) : AndroidViewModel(appli
     }
     fun uploadParsedTrades() {
         viewModelScope.launch {
+            val brokers = BrokerInfoCache.getAll()
             val parsedItems = filteredMessages.flatMap { (brokerId, messages) ->
-                val broker = BrokerInfoCache.getAll().find { it.id == brokerId } ?: return@flatMap emptyList()
+                val broker = brokers.find { it.id == brokerId }  ?: return@flatMap emptyList()
 
                 messages.mapNotNull { msg ->
                     try {
+                        val item = parseEugene(msg.body, msg.timestamp)?.trades?.firstOrNull()
+                        if (item != null) {
+                            Log.d("TradeUpload", "✅ 파싱 성공: ${msg.body}")
+                        } else {
+                            Log.w("TradeUpload", "❌ 파싱 실패(비어 있음): ${msg.body}")
+                        }
+                        item
                         // TODO: 나중에 broker에 따라 분기 필요
-                        val result = parseEugeneMessage(msg.body)  // <- 현재 Eugene만
-                        Log.d("TradeUpload", "✅ 파싱 성공: ${msg.body}")
-                        result.trades.firstOrNull() // TradeItem 하나만 사용
+                        //val result = parseEugene(msg.body, msg.timestamp)  // <- 현재 Eugene만
+                        //Log.d("TradeUpload", "✅ 파싱 성공: ${msg.body}")
+                        //result.trades.firstOrNull() // TradeItem 하나만 사용
                     } catch (e: Exception) {
                         Log.w("TradeUpload", "❌ 파싱 실패: ${msg.body}")
                         null // 파싱 실패한 건 무시
