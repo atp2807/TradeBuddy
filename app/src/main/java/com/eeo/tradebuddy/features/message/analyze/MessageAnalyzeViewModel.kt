@@ -130,4 +130,37 @@ class MessageAnalyzeViewModel(application: Application) : AndroidViewModel(appli
             }
         }
     }
+    fun addKakaoSharedText(text: String) {
+        val parsedLines = text.lines().filter { it.isNotBlank() }
+
+        val messages = parsedLines.mapNotNull { line ->
+            try {
+                val result = parseEugene(line, System.currentTimeMillis())  // timestamp는 대충 현재 시간
+                if (result?.trades?.isNotEmpty() == true) {
+                    result.trades.first()  // 첫 번째 거래만 사용
+                } else null
+            } catch (e: Exception) {
+                null  // 파싱 실패는 무시
+            }
+        }
+
+        if (messages.isEmpty()) {
+            Log.w("KakaoImport", "공유된 텍스트에서 파싱된 거래 없음")
+            Log.d("KakaoImport", "원본 메시지:\n$text")
+            return
+        }
+
+        val summary = BrokerMessageSummary(
+            brokerId = -999,
+            alias = "kakao_share",
+            displayName = "유진증권(카톡)",
+            count = messages.size,
+            dateRange = "방금 공유됨",
+            isChecked = true
+        )
+
+        _summaryList.value = _summaryList.value + summary
+    }
+
+
 }

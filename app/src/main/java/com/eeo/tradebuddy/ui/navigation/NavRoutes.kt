@@ -6,4 +6,6 @@ object NavRoutes {
     const val ANALYZE = "analyze"
     const val REPORT = "report"
     const val PREMIUM = "premium"
+    const val KAKAO_GUIDE = "kakao_guide"
+    const val WAIT_FOR_SAHTE ="waitForShare"
 }
