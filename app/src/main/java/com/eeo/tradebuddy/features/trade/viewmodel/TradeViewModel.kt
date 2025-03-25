@@ -1,4 +1,4 @@
-package com.eeo.tradebuddy.viewmodel
+package com.eeo.tradebuddy.features.trade.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

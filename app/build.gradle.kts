@@ -28,7 +28,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "BASE_URL", "\"http://mydeeptrack.com/\"")
+            buildConfigField("String", "BASE_URL", "\"https://mydeeptrack.com/\"")
         }
         release {
             signingConfig = signingConfigs.getByName("release")
@@ -63,6 +63,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.media3.common.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

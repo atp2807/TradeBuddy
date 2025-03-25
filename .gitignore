@@ -13,3 +13,26 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Android build outputs
+*.apk
+*.ap_
+
+# Jetpack Compose / Kotlin 관련
+*.kotlin_module
+
+# Unit test output
+test-output/
+
+# Log files
+*.log
+
+# OS-specific files (Windows/macOS)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.MACOSX/
+
+# Git merge/conflict markers (실수 방지)
+*.orig
+*.rej

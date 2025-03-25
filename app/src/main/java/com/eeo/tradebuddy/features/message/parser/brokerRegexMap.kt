@@ -1,4 +1,4 @@
-package com.eeo.tradebuddy.parser
+package com.eeo.tradebuddy.features.message.parser
 
 val eugeneRegexMap = mapOf(
     "stock_name" to Regex("종목\\s?:\\s?(.*?)\\s*\\["),

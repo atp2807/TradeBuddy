@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 fun ButtonCard(
     text: String,
     backgroundColor: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Card(
         modifier = Modifier

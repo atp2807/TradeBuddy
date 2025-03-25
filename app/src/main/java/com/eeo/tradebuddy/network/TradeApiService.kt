@@ -1,5 +1,6 @@
 package com.eeo.tradebuddy.network
 
+import com.eeo.tradebuddy.model.BrokerInfo
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -20,4 +21,6 @@ interface TradeApiService {
     @GET("/fieldnames")
     suspend fun getFieldNames(): Response<Map<String, String>>
 
+    @GET("/brokers")
+    suspend fun getBrokers(): Response<List<BrokerInfo>>
 }

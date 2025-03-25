@@ -1,12 +1,12 @@
-package com.eeo.tradebuddy.parser.kr
+package com.eeo.tradebuddy.features.message.parser.kr.eugen
 
 import com.eeo.tradebuddy.model.TradeBulkRequest
-import com.eeo.tradebuddy.parser.autoParse
-import com.eeo.tradebuddy.parser.kr.regex.eugeneOverseasRegexMap
+import com.eeo.tradebuddy.features.message.parser.autoParse
 import com.eeo.tradebuddy.utils.TradeItemFactory
 import com.eeo.tradebuddy.utils.getNowTimeString
 
 fun parseEugeneMessage(message: String): TradeBulkRequest {
+    val cleanedMessage = message.replace("[Web발신]", "").trim()
     val marketType = if (message.contains("USD") || message.contains("해외주식")) "US" else "KR"
 
     val meta = mapOf(

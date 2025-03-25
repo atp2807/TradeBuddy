@@ -1,4 +1,4 @@
-package com.eeo.tradebuddy.parser.kr.regex
+package com.eeo.tradebuddy.features.message.parser.kr.eugen
 
 val eugeneOverseasRegexMap = mapOf(
     "stock_name" to Regex("종목\\s?:\\s?(.*?)\\s*\\["),

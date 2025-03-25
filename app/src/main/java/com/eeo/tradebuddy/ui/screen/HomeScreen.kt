@@ -4,15 +4,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.eeo.tradebuddy.navigation.NavRoutes
-import com.eeo.tradebuddy.ui.components.AdUnitIds
+import com.eeo.tradebuddy.ui.navigation.NavRoutes
 import com.eeo.tradebuddy.ui.components.ButtonCard
 import com.eeo.tradebuddy.ui.theme.AppSizes
 import com.eeo.tradebuddy.R
@@ -26,7 +24,7 @@ import androidx.compose.runtime.setValue
 fun HomeScreen(navController: NavController) {
     val isPremiumUser = false
     var showAdPopup by rememberSaveable { mutableStateOf(!isPremiumUser) } // 무료 사용자일 경우 true
-    val nativeAdState = rememberLoadedNativeAd() // 내부에서 테스트 ID 사용 중
+    val nativeAdState = rememberLoadedNativeAd()
 
     Box(modifier = Modifier.fillMaxSize()) {
     Column(

@@ -1,4 +1,4 @@
-package com.eeo.tradebuddy.navigation
+package com.eeo.tradebuddy.ui.navigation
 
 object NavRoutes {
     const val SPLASH = "splash"

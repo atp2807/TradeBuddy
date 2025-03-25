@@ -1,6 +1,4 @@
-package com.eeo.tradebuddy.parser
-
-import com.eeo.tradebuddy.utils.TradeItemFactory
+package com.eeo.tradebuddy.features.message.parser
 
 fun autoParse(
     message: String,
