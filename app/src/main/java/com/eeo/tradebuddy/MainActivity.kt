@@ -38,20 +38,7 @@ class MainActivity : ComponentActivity() {
         MobileAds.initialize(this)
 
         lifecycleScope.launch {
-            val api = RetrofitInstance.api
-            val brokerResponse = api.getBrokers()
-            if (brokerResponse.isSuccessful) {
-                brokerResponse.body()?.let { BrokerInfoCache.set(it) }
-            } else {
-                Log.e("BrokerInit", "증권사 로딩 실패: ${brokerResponse.code()}")
-            }
-
-            val fieldNameResponse = api.getFieldNames()
-            if (fieldNameResponse.isSuccessful) {
-                FieldNameCache.fieldNames = fieldNameResponse.body()
-            } else {
-                Log.e("FieldNameInit", "필드명 로딩 실패: ${fieldNameResponse.code()}")
-            }
+            com.eeo.tradebuddy.init.AppInitializer.init()
         }
 
         setContent {
